@@ -1,6 +1,7 @@
 "use strict";
 const http = require("http");
 const url = require("url");
+const qs = require("querystring");
 
 // Hello Routing
 // HTTP Request and Methods
@@ -13,7 +14,7 @@ const url = require("url");
 
 // REST - REpresentational State Transfer
 
-// Handling GET Requests
+// Handling POST Requests
 
 let routes = {
   GET: {
@@ -31,7 +32,37 @@ let routes = {
       res.end(JSON.stringify(req.queryParams));
     },
   },
-  POST: {},
+  POST: {
+    // Postman request send to localhost:3000
+    // POST --> x-www-form-urlencoded
+    // username: techkush , password: 123456
+    // POST --> binary
+    // send file method (we can check length of the file)
+    "/api/login": (req, res) => {
+      let body = "";
+      req.on("data", (data) => {
+        body += data;
+        console.log(body.length);
+        if (body.length > 2097152) {
+          res.writeHead(413, { "Content-type": "text/html" });
+          res.end(
+            "<h3>Error: The file being uploaded exceeds the 2MB limit</h3>",
+            () => req.connection.destroy()
+          );
+        }
+        // 2mb = 2097152 bytes
+        // https://www.gbmb.org/mb-to-bytes
+      });
+      req.on("end", () => {
+        let params = qs.parse(body);
+        console.log("Username: ", params["username"]);
+        console.log("Password: ", params["password"]);
+        // Query a db to see if the user exists
+        // If so, send a JSON response to the SPA
+        res.end();
+      });
+    },
+  },
   NA: (req, res) => {
     res.writeHead(404);
     res.end("Content not found!");
