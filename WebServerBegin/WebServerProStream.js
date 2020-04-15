@@ -25,18 +25,6 @@ function fileAccess(filepath) {
   });
 }
 
-function fileReader(filepath) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filepath, (error, content) => {
-      if (!error) {
-        resolve(content);
-      } else {
-        reject(error);
-      }
-    });
-  });
-}
-
 function streamFile(filepath){
     return new Promise((resolve, reject) => {
         let fileStream = fs.createReadStream(filepath);
