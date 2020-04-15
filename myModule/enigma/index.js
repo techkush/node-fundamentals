@@ -1,50 +1,29 @@
-"use strict";
+'use strict';
+const crypto = require('crypto');
 
-// exports.hello = (user) => {
-//     return 'Hello ' + user;
-// }
+class Enigma {
+	constructor(key) {
+		this.key = key;
+	}
 
-// exports.goodmorning = (user) => {
-//     return 'Good Morning ' + user;
-// }
+	encode(str) {
+		const iv = crypto.pbkdf2Sync(this.key, crypto.randomBytes(16), 10000, 16, 'sha512');
+		const key = Buffer.from(this.key, 'binary');
+		const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+		let encodedText = cipher.update(str, 'utf8', 'base64');
+		encodedText += cipher.final();
+		return encodedText + "." + iv.toString('base64');
+	}
 
-// module.exports = function() {
-//     return {
-//         hello: (user) => {
-//             return "Hello " + user;
-//         },
-//         goodmorning: (user) => {
-//             return "Good Morning " + user;
-//         }
-//     }
-// }
-const crypto = require("crypto");
-const qr = require("qr-image");
-const fs = require("fs");
+	decode(str) {
+		const encodedString = str.split(".")[0];
+		const iv = Buffer.from(str.split(".")[1], 'base64');
+		const key = Buffer.from(this.key, 'binary');
+		const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
+		let decodedText = decipher.update(encodedString, 'base64');
+		decodedText += decipher.final();
+		return decodedText;
+	}
+}
 
-module.exports = function (key) {
-  this.key = key;
-  return {
-    encode: (str) => {
-      let encoder = crypto.createCipher("aes-256-ctr", this.key);
-      return encoder.update(str, "utf8", "hex");
-    },
-    decode: (str) => {
-      let decoder = crypto.createDecipher("aes-256-ctr", this.key);
-      return decoder.update(str, "hex", "utf8");
-    },
-    qrgen: (data, file) => {
-      let dataToEncode = data || null;
-      let outImage = file || null;
-      if (dataToEncode !== null && outImage !== null) {
-        qr.image(dataToEncode, {
-          type: "png",
-          size: 20,
-        }).pipe(fs.createWriteStream(outImage));
-        return true;
-      } else {
-        return false;
-      }
-    },
-  };
-};
+module.exports = Enigma;

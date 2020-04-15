@@ -1,21 +1,9 @@
 'use strict';
-
-// const enigma = require('./enigma');
-
-// console.log(enigma.hello('Namesh'));
-// console.log(enigma.goodmorning('Namesh'));
-
 const Enigma = require('./enigma');
-const eng = new Enigma('magrathea');
+const eng = new Enigma('thisstringistherawkey01234567890');
 
-// console.log(eng.hello('Namesh'));
-
-let encodeString = eng.encode("Don't Panic");
+let encodeString = eng.encode("Don't panic!");
 let decodeString = eng.decode(encodeString);
 
-
-console.log('Encoded:', encodeString);
-console.log('Decoded:', decodeString);
-
-let qr = eng.qrgen("http://www.npmjs.com", 'outImage.png');
-qr ? console.log('QR Code created!') : console.log('QR Code failed!');
+console.log("Encoded: ", encodeString);
+console.log("Decoded: ", decodeString);
